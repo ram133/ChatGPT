@@ -1,115 +1,1028 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PWA Builder</title>
-  <link rel="manifest" href="manifest.json">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 2em;
-      background: #f0f0f0;
-    }
-    input, button, textarea {
-      width: 100%;
-      margin: 0.5em 0;
-      padding: 0.5em;
-      font-size: 1em;
-    }
-    .output {
-      white-space: pre-wrap;
-      background: #fff;
-      border: 1px solid #ccc;
-      padding: 1em;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>Tiny Workflows → Big Scripts Suite</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="theme-color" content="#020617" />
+<link rel="manifest" id="manifest-link" />
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #020617;
+  --bg-elevated: #020617;
+  --border: #1f2937;
+  --accent: #38bdf8;
+  --accent-soft: rgba(56,189,248,0.12);
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-pill: 999px;
+  --shadow: 0 18px 40px rgba(15,23,42,0.9);
+}
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, #111827 0, #020617 45%, #000 100%);
+  color: var(--text);
+  display: flex;
+}
+.app-shell {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  margin: 16px auto;
+  background: radial-gradient(circle at top left, #020617 0, #020617 60%);
+  border-radius: 26px;
+  border: 1px solid rgba(148,163,184,0.25);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.sidebar {
+  width: 260px;
+  min-width: 220px;
+  border-right: 1px solid rgba(31,41,55,0.95);
+  background: #020617;
+  padding: 16px 12px 16px;
+}
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.badge {
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(148,163,184,0.45);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: rgba(15,23,42,0.9);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34,197,94,0.25);
+}
+.sidebar-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+.sidebar-sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+.nav {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.nav-btn {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 7px 9px;
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--muted);
+  background: transparent;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.nav-btn span.idx {
+  font-size: 11px;
+  opacity: 0.8;
+}
+.nav-btn.active {
+  background: rgba(15,23,42,0.95);
+  color: var(--text);
+  border: 1px solid rgba(56,189,248,0.6);
+}
+.nav-footer {
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.main {
+  flex: 1;
+  padding: 18px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.main-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.main-title {
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+.main-subtitle {
+  font-size: 13px;
+  color: var(--muted);
+}
+.input-card, .output-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(31,41,55,0.95);
+  background: radial-gradient(circle at top left, #020617 0, #020617 60%);
+  padding: 12px 12px 13px;
+}
+.input-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+input, textarea {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(55,65,81,0.9);
+  background: rgba(15,23,42,0.95);
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 13px;
+}
+input::placeholder {
+  color: #6b7280;
+}
+textarea {
+  min-height: 260px;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  white-space: pre;
+}
+.actions {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.btn {
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(55,65,81,0.9);
+  background: rgba(15,23,42,0.95);
+  color: var(--muted);
+  font-size: 11px;
+  padding: 6px 11px;
+  cursor: pointer;
+}
+.btn-primary {
+  border: none;
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  color: #020617;
+  font-weight: 600;
+}
+.status-bar {
+  margin-top: 8px;
+  padding: 7px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(55,65,81,0.9);
+  background: rgba(15,23,42,0.95);
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+.status-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #38bdf8;
+  box-shadow: 0 0 0 4px rgba(56,189,248,0.25);
+}
+@media (max-width: 800px) {
+  .app-shell {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(31,41,55,0.95);
+  }
+}
+</style>
 </head>
 <body>
-  <h1>PWA Builder</h1>
-  <p>Enter app details to generate a manifest and service worker for your own PWA:</p>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        Tiny Workflows → Big Scripts
+      </div>
+      <div class="sidebar-title">10‑Engine Static PWA Suite</div>
+      <div class="sidebar-sub">Sidebar navigation · Single file · Offline‑ready</div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-btn active" data-tool="1"><span class="idx">1.</span>Drop a URL → Build Everything</button>
+      <button class="nav-btn" data-tool="2"><span class="idx">2.</span>Upload a Logo → Brand Kit</button>
+      <button class="nav-btn" data-tool="3"><span class="idx">3.</span>Enter a Niche → Business Builder</button>
+      <button class="nav-btn" data-tool="4"><span class="idx">4.</span>Paste a Bio → Personal Brand</button>
+      <button class="nav-btn" data-tool="5"><span class="idx">5.</span>Upload a Screenshot → Strategy</button>
+      <button class="nav-btn" data-tool="6"><span class="idx">6.</span>One Sentence → Course Builder</button>
+      <button class="nav-btn" data-tool="7"><span class="idx">7.</span>Paste a Problem → Funnel</button>
+      <button class="nav-btn" data-tool="8"><span class="idx">8.</span>Upload a PDF → Product</button>
+      <button class="nav-btn" data-tool="9"><span class="idx">9.</span>Enter a Keyword → Content Engine</button>
+      <button class="nav-btn" data-tool="10"><span class="idx">10.</span>Client Name → Client System</button>
+    </nav>
+    <div class="nav-footer">
+      Single‑file PWA · Manifest + SW inline · Ready for GitHub Pages.
+    </div>
+  </aside>
 
-  <input type="text" id="appName" placeholder="App Name" value="My PWA">
-  <input type="text" id="shortName" placeholder="Short Name" value="PWA">
-  <input type="text" id="startUrl" placeholder="Start URL" value="/">
-  <input type="text" id="themeColor" placeholder="Theme Color" value="#3367D6">
-  <input type="text" id="backgroundColor" placeholder="Background Color" value="#ffffff">
+  <main class="main">
+    <header class="main-header">
+      <div class="main-title" id="toolTitle">Drop a URL → Build Everything</div>
+      <div class="main-subtitle" id="toolSubtitle">
+        Paste a URL and generate a hybrid blueprint + big script for a full AI‑ready build‑everything engine.
+      </div>
+    </header>
 
-  <button onclick="generatePWA()">Generate PWA Files</button>
+    <section class="input-card">
+      <div class="input-label" id="inputLabel">Input</div>
+      <input id="inputField" placeholder="https://example.com" />
+      <div class="actions">
+        <button class="btn btn-primary" id="generateBtn">Generate Hybrid Output</button>
+        <button class="btn" id="copyBtn">Copy Output</button>
+        <button class="btn" id="resetBtn">Reset</button>
+      </div>
+    </section>
 
-  <h2>Generated Manifest</h2>
-  <div class="output" id="manifestOutput"></div>
+    <section class="output-card">
+      <div class="input-label">Hybrid Output (Blueprint + Big Script)</div>
+      <textarea id="output" readonly></textarea>
+      <div class="status-bar">
+        <span id="statusText">Ready · Select a workflow and generate.</span>
+        <span class="status-right">
+          <span class="status-dot"></span>
+          <span>Offline‑capable PWA</span>
+        </span>
+      </div>
+    </section>
+  </main>
+</div>
 
-  <h2>Generated Service Worker</h2>
-  <div class="output" id="swOutput"></div>
+<script>
+/* ---------- INLINE MANIFEST ---------- */
+const manifest = {
+  name: "Tiny Workflows → Big Scripts Suite",
+  short_name: "TWBS Suite",
+  start_url: ".",
+  display: "standalone",
+  background_color: "#020617",
+  theme_color: "#020617",
+  description: "10 tiny workflows that trigger big scripts, bundled into a single-file static PWA.",
+  icons: [
+    {
+      src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='24' fill='%23020617'/%3E%3Ccircle cx='40' cy='64' r='18' fill='%2338bdf8'/%3E%3Ccircle cx='88' cy='40' r='14' fill='%236366f1'/%3E%3Ccircle cx='88' cy='88' r='14' fill='%23f97316'/%3E%3C/svg%3E",
+      sizes: "128x128",
+      type: "image/svg+xml"
+    }
+  ]
+};
+const manifestBlob = new Blob([JSON.stringify(manifest)], { type: "application/json" });
+const manifestURL = URL.createObjectURL(manifestBlob);
+document.getElementById("manifest-link").setAttribute("href", manifestURL);
 
-  <button onclick="downloadFiles()">Download Files</button>
+/* ---------- INLINE SERVICE WORKER ---------- */
+const swCode = `
+  const CACHE = "twbs-suite-v1";
+  self.addEventListener("install", e => {
+    e.waitUntil(caches.open(CACHE).then(c => c.addAll(["./"])));
+    self.skipWaiting();
+  });
+  self.addEventListener("activate", e => {
+    e.waitUntil(
+      caches.keys().then(keys =>
+        Promise.all(keys.map(k => k !== CACHE && caches.delete(k)))
+      )
+    );
+    self.clients.claim();
+  });
+  self.addEventListener("fetch", e => {
+    if (e.request.method !== "GET") return;
+    e.respondWith(
+      caches.match(e.request).then(cached =>
+        cached ||
+        fetch(e.request).then(res => {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, copy));
+          return res;
+        }).catch(() => caches.match("./"))
+      )
+    );
+  });
+`;
+const swBlob = new Blob([swCode], { type: "text/javascript" });
+const swURL = URL.createObjectURL(swBlob);
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register(swURL).catch(() => {});
+  });
+}
 
-  <script>
-    const swCode = `self.addEventListener('install', e => {
-  console.log('Service Worker Installed');
-  e.waitUntil(
-    caches.open('pwa-cache').then(cache => {
-      return cache.addAll(['/', '/index.html']);
-    })
-  );
+/* ---------- APP LOGIC ---------- */
+const tools = {
+  1: {
+    title: "Drop a URL → Build Everything",
+    subtitle: "Paste a URL and generate a hybrid blueprint + big script for a full AI‑ready build‑everything engine.",
+    placeholder: "https://example.com"
+  },
+  2: {
+    title: "Upload a Logo → Brand Kit Generator",
+    subtitle: "Describe or reference a logo and generate a full brand kit blueprint + big script.",
+    placeholder: "Describe or paste a logo URL"
+  },
+  3: {
+    title: "Enter a Niche → Business Builder",
+    subtitle: "Enter a niche and generate a full business model, offers, and content system.",
+    placeholder: "e.g., Fitness coaches, Real estate agents"
+  },
+  4: {
+    title: "Paste a Bio → Personal Brand Engine",
+    subtitle: "Paste a short bio and generate a personal brand system.",
+    placeholder: "Paste a 2–3 sentence bio"
+  },
+  5: {
+    title: "Upload a Screenshot → Strategy Generator",
+    subtitle: "Describe a screenshot (analytics, competitor, etc.) and generate a strategy blueprint.",
+    placeholder: "Describe the screenshot or context"
+  },
+  6: {
+    title: "One Sentence → Course Builder",
+    subtitle: "Write one sentence about what you want to teach and generate a full course system.",
+    placeholder: "Teach people how to start a podcast."
+  },
+  7: {
+    title: "Paste a Problem → Funnel Builder",
+    subtitle: "Paste a core audience problem and generate a full funnel.",
+    placeholder: "My audience struggles with consistency."
+  },
+  8: {
+    title: "Upload a PDF → Product Builder",
+    subtitle: "Describe or reference a PDF and generate a productized version.",
+    placeholder: "Describe the PDF or its topic"
+  },
+  9: {
+    title: "Enter a Keyword → Content Engine",
+    subtitle: "Enter a keyword and generate a full content engine.",
+    placeholder: "e.g., Mindset, AI tools"
+  },
+  10: {
+    title: "Client Name → Client System Builder",
+    subtitle: "Enter a client name and generate a full client system blueprint.",
+    placeholder: "Sarah’s Fitness Coaching"
+  }
+};
+
+let currentTool = 1;
+
+const nav = document.getElementById("nav");
+const toolTitle = document.getElementById("toolTitle");
+const toolSubtitle = document.getElementById("toolSubtitle");
+const inputField = document.getElementById("inputField");
+const output = document.getElementById("output");
+const statusText = document.getElementById("statusText");
+const generateBtn = document.getElementById("generateBtn");
+const copyBtn = document.getElementById("copyBtn");
+const resetBtn = document.getElementById("resetBtn");
+
+function setTool(id) {
+  currentTool = id;
+  const t = tools[id];
+  toolTitle.textContent = t.title;
+  toolSubtitle.textContent = t.subtitle;
+  inputField.placeholder = t.placeholder;
+  statusText.textContent = "Ready · " + t.title;
+  output.value = "";
+}
+
+nav.addEventListener("click", (e) => {
+  const btn = e.target.closest(".nav-btn");
+  if (!btn) return;
+  const id = Number(btn.dataset.tool);
+  if (!id || id === currentTool) return;
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  setTool(id);
 });
 
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(response => {
-      return response || fetch(e.request);
-    })
-  );
-});`;
+function hybridOutput(toolId, rawInput) {
+  const input = rawInput.trim() || "[No input provided]";
+  const divider = "\n------------------------------------------------------------\n";
+  switch (toolId) {
+    case 1: {
+      let domain = input;
+      try { domain = new URL(input).hostname.replace("www.",""); } catch {}
+      return (
+`HYBRID OUTPUT — DROP A URL → BUILD EVERYTHING
+=============================================
 
-    function generatePWA() {
-      const name = document.getElementById('appName').value;
-      const short_name = document.getElementById('shortName').value;
-      const start_url = document.getElementById('startUrl').value;
-      const theme_color = document.getElementById('themeColor').value;
-      const background_color = document.getElementById('backgroundColor').value;
+[BLUEPRINT SUMMARY]
+- Source URL: ${input}
+- Brand handle: ${domain}
+- Goal: Turn a single URL into a full AI‑ready content + funnel system.
+- Outputs: Brand snapshot, content pillars, 30‑day calendar, post prompts, repurposing, SEO, automation.
 
-      const manifest = {
-        name,
-        short_name,
-        start_url,
-        display: "standalone",
-        background_color,
-        theme_color,
-        icons: [{
-          src: "icon.png",
-          sizes: "192x192",
-          type: "image/png"
-        }]
-      };
+[KEY MODULES]
+1) Brand & Positioning Snapshot
+2) Content Pillars
+3) 30‑Day Content Calendar
+4) Post‑Level Prompts
+5) Long‑Form Repurposing
+6) SEO Layer
+7) Automation Hooks
+` + divider +
+`[BIG SCRIPT — FULL MULTI‑PHASE FLOW]
 
-      document.getElementById('manifestOutput').textContent = JSON.stringify(manifest, null, 2);
-      document.getElementById('swOutput').textContent = swCode;
+PHASE 1 — BRAND & POSITIONING SNAPSHOT
+Prompt:
+"You are analyzing the website at ${input}. Summarize:
+- Who they serve
+- What they sell
+- The main problem they solve
+- The transformation they promise
+Return a 3–5 sentence brand snapshot."
+
+PHASE 2 — CONTENT PILLARS
+Prompt:
+"Using the brand at ${input}, generate 5 content pillars that:
+- Align with the offer
+- Speak directly to the target audience
+- Support both education and conversion.
+Return: Pillar name + 1‑sentence description."
+
+PHASE 3 — 30‑DAY CONTENT CALENDAR
+Prompt:
+"Using these pillars and the brand at ${input}, generate a 30‑day social calendar.
+For each day:
+- Platform
+- Content type (carousel, reel, static)
+- Hook
+- Angle
+- CTA."
+
+PHASE 4 — POST‑LEVEL GENERATION
+Caption prompt:
+"Write a caption for ${domain} using:
+- Pillar: [pillar]
+- Hook: [hook]
+- Angle: [angle]
+Include: strong first line, 2–3 value paragraphs, 1 CTA, 10 hashtags."
+
+Visual prompt:
+"Describe the visual for this post:
+- Format: [carousel/reel/static]
+- Style: [brand style]
+- Key elements: [bullets]."
+
+PHASE 5 — LONG‑FORM REPURPOSING
+Prompt:
+"From the content at ${input}, generate:
+- 5 video scripts
+- 5 carousel scripts
+- 5 email ideas
+All aligned with the brand voice."
+
+PHASE 6 — SEO LAYER
+Prompt:
+"From ${input}, extract:
+- 15 primary keywords
+- 10 long‑tail keywords
+- 3 blog post outlines."
+
+PHASE 7 — AUTOMATION HOOKS
+- Weekly idea generator
+- Monthly report generator
+- Content folder auto‑organizer
+
+END OF SCRIPT FOR: ${input}
+`);
     }
+    case 2:
+      return (
+`HYBRID OUTPUT — UPLOAD A LOGO → BRAND KIT
+=========================================
 
-    function downloadFiles() {
-      const manifestBlob = new Blob([document.getElementById('manifestOutput').textContent], { type: 'application/json' });
-      const swBlob = new Blob([document.getElementById('swOutput').textContent], { type: 'application/javascript' });
+[BLUEPRINT SUMMARY]
+- Input: Logo description or URL
+- Goal: Turn a single logo into a full brand kit.
+- Outputs: Colors, typography, voice, usage rules, social templates.
 
-      const link1 = document.createElement('a');
-      link1.href = URL.createObjectURL(manifestBlob);
-      link1.download = 'manifest.json';
-      link1.click();
+[KEY MODULES]
+1) Color Palette Extraction
+2) Typography Pairing
+3) Brand Voice Profile
+4) Social Template System
+5) Brand Guidelines PDF Structure
+` + divider +
+`[BIG SCRIPT — FULL MULTI‑PHASE FLOW]
 
-      const link2 = document.createElement('a');
-      link2.href = URL.createObjectURL(swBlob);
-      link2.download = 'service-worker.js';
-      link2.click();
-    }
+PHASE 1 — COLOR PALETTE
+Prompt:
+"From this logo: ${input}, extract:
+- Primary colors (3–5)
+- Accent colors
+- Neutral colors
+Return hex codes + usage notes."
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js').then(() => {
-          console.log("Service Worker Registered");
-        }).catch(console.error);
-      });
-    }
-  </script>
+PHASE 2 — TYPOGRAPHY
+Prompt:
+"Based on the logo style, suggest:
+- Heading font
+- Body font
+- Accent font
+Return with usage guidelines."
+
+PHASE 3 — BRAND VOICE
+Prompt:
+"From the visual style of ${input}, infer:
+- Brand personality (3–5 traits)
+- Tone (formal/informal, playful/serious)
+- Example phrases."
+
+PHASE 4 — SOCIAL TEMPLATE SYSTEM
+Prompt:
+"Using this brand kit, define:
+- 3 post templates for carousels
+- 3 templates for reels
+- 3 templates for static posts."
+
+PHASE 5 — BRAND GUIDELINES STRUCTURE
+Sections:
+- Logo usage
+- Colors
+- Typography
+- Voice & tone
+- Social examples
+
+END OF SCRIPT FOR LOGO: ${input}
+`);
+    case 3:
+      return (
+`HYBRID OUTPUT — ENTER A NICHE → BUSINESS BUILDER
+=================================================
+
+[BLUEPRINT SUMMARY]
+- Niche: ${input}
+- Goal: Turn a niche into a full business model.
+- Outputs: Offers, audience, positioning, content, funnel.
+
+[KEY MODULES]
+1) Audience & Problem Map
+2) Offer Stack
+3) Pricing Model
+4) Content Engine
+5) Funnel Structure
+` + divider +
+`[BIG SCRIPT — FULL MULTI‑PHASE FLOW]
+
+PHASE 1 — AUDIENCE & PROBLEM MAP
+Prompt:
+"For the niche '${input}', define:
+- Primary audience segments
+- Top 5 problems
+- Desired outcomes."
+
+PHASE 2 — OFFER STACK
+Prompt:
+"Create an offer stack for '${input}':
+- Entry offer
+- Core offer
+- Premium offer
+Include: promise, deliverables, price range."
+
+PHASE 3 — PRICING MODEL
+Prompt:
+"Suggest pricing tiers for '${input}' offers:
+- Low
+- Mid
+- High
+Include positioning notes."
+
+PHASE 4 — CONTENT ENGINE
+Prompt:
+"Generate 30 content ideas for '${input}' across:
+- Education
+- Authority
+- Conversion
+- Community."
+
+PHASE 5 — FUNNEL STRUCTURE
+Prompt:
+"Design a simple funnel for '${input}':
+- Lead magnet
+- Nurture sequence
+- Sales event
+- Follow‑up."
+
+END OF SCRIPT FOR NICHE: ${input}
+`);
+    case 4:
+      return (
+`HYBRID OUTPUT — PASTE A BIO → PERSONAL BRAND ENGINE
+====================================================
+
+[BLUEPRINT SUMMARY]
+- Bio: ${input}
+- Goal: Turn a short bio into a full personal brand system.
+- Outputs: Brand story, pillars, content, offers.
+
+[KEY MODULES]
+1) Brand Story
+2) Identity & Positioning
+3) Content Pillars
+4) Offer Map
+5) Visibility Plan
+` + divider +
+`[BIG SCRIPT — FULL MULTI‑PHASE FLOW]
+
+PHASE 1 — BRAND STORY
+Prompt:
+"From this bio: '${input}', write:
+- Origin story
+- Turning point
+- Mission."
+
+PHASE 2 — IDENTITY & POSITIONING
+Prompt:
+"Define:
+- Who they are
+- Who they serve
+- What they help with
+- Why they are different."
+
+PHASE 3 — CONTENT PILLARS
+Prompt:
+"Generate 5 content pillars based on '${input}' and their mission."
+
+PHASE 4 — OFFER MAP
+Prompt:
+"Suggest 3 offers:
+- Low ticket
+- Core
+- Premium
+Aligned with the bio."
+
+PHASE 5 — VISIBILITY PLAN
+Prompt:
+"Create a 30‑day visibility plan:
+- Platforms
+- Content types
+- Collaboration ideas."
+
+END OF SCRIPT FOR BIO: ${input}
+`);
+    case 5:
+      return (
+`HYBRID OUTPUT — UPLOAD A SCREENSHOT → STRATEGY GENERATOR
+=========================================================
+
+[BLUEPRINT SUMMARY]
+- Screenshot context: ${input}
+- Goal: Turn a snapshot into a strategy.
+- Outputs: Diagnosis, insights, plan, experiments.
+
+[KEY MODULES]
+1) Situation Analysis
+2) Key Insights
+3) Strategy Pillars
+4) 30‑Day Plan
+5) Experiments
+` + divider +
+`[BIG SCRIPT — FULL MULTI‑PHASE FLOW]
+
+PHASE 1 — SITUATION ANALYSIS
+Prompt:
+"Based on this screenshot/context: '${input}', describe:
+- Current state
+- Strengths
+- Weaknesses."
+
+PHASE 2 — KEY INSIGHTS
+Prompt:
+"Extract 5 key insights from '${input}' that matter most."
+
+PHASE 3 — STRATEGY PILLARS
+Prompt:
+"Define 3–5 strategy pillars to improve the situation."
+
+PHASE 4 — 30‑DAY PLAN
+Prompt:
+"Create a 30‑day action plan:
+- Weekly focus
+- Key actions
+- Metrics."
+
+PHASE 5 — EXPERIMENTS
+Prompt:
+"Suggest 3–5 experiments to run based on '${input}'."
+
+END OF SCRIPT FOR SCREENSHOT CONTEXT: ${input}
+`);
+    case 6:
+      return (
+`HYBRID OUTPUT — ONE SENTENCE → COURSE BUILDER
+=============================================
+
+[BLUEPRINT SUMMARY]
+- Course idea: ${input}
+- Goal: Turn one sentence into a full course.
+- Outputs: Outline, modules, lessons, assets, launch.
+
+[KEY MODULES]
+1) Course Promise
+2) Module Outline
+3) Lesson Breakdown
+4) Assets & Worksheets
+5) Launch Plan
+` + divider +
+`[BIG SCRIPT — FULL MULTI‑PHASE FLOW]
+
+PHASE 1 — COURSE PROMISE
+Prompt:
+"From this idea: '${input}', write:
+- One clear course promise
+- 3 supporting outcomes."
+
+PHASE 2 — MODULE OUTLINE
+Prompt:
+"Create 5–8 modules that deliver on '${input}'."
+
+PHASE 3 — LESSON BREAKDOWN
+Prompt:
+"For each module, list 3–5 lessons with titles and outcomes."
+
+PHASE 4 — ASSETS & WORKSHEETS
+Prompt:
+"Suggest worksheets, checklists, and templates for '${input}' course."
+
+PHASE 5 — LAUNCH PLAN
+Prompt:
+"Create a simple launch plan:
+- Pre‑launch content
+- Launch emails
+- Post‑launch nurture."
+
+END OF SCRIPT FOR COURSE IDEA: ${input}
+`);
+    case 7:
+      return (
+`HYBRID OUTPUT — PASTE A PROBLEM → FUNNEL BUILDER
+=================================================
+
+[BLUEPRINT SUMMARY]
+- Core problem: ${input}
+- Goal: Turn a problem into a full funnel.
+- Outputs: Lead magnet, nurture, offer, follow‑up.
+
+[KEY MODULES]
+1) Problem & Desire Map
+2) Lead Magnet
+3) Nurture Sequence
+4) Core Offer
+5) Follow‑Up
+` + divider +
+`[BIG SCRIPT — FULL MULTI‑PHASE FLOW]
+
+PHASE 1 — PROBLEM & DESIRE MAP
+Prompt:
+"From this problem: '${input}', define:
+- Root causes
+- Emotional impact
+- Desired outcomes."
+
+PHASE 2 — LEAD MAGNET
+Prompt:
+"Design a lead magnet that directly addresses '${input}'."
+
+PHASE 3 — NURTURE SEQUENCE
+Prompt:
+"Write a 5‑email nurture sequence:
+- Email 1: Awareness
+- Email 2: Insight
+- Email 3: Story
+- Email 4: Offer intro
+- Email 5: Close."
+
+PHASE 4 — CORE OFFER
+Prompt:
+"Define an offer that solves '${input}':
+- Promise
+- Deliverables
+- Price range."
+
+PHASE 5 — FOLLOW‑UP
+Prompt:
+"Create a simple follow‑up plan for non‑buyers."
+
+END OF SCRIPT FOR PROBLEM: ${input}
+`);
+    case 8:
+      return (
+`HYBRID OUTPUT — UPLOAD A PDF → PRODUCT BUILDER
+==============================================
+
+[BLUEPRINT SUMMARY]
+- PDF context: ${input}
+- Goal: Turn a PDF into a product.
+- Outputs: Product structure, assets, sales system.
+
+[KEY MODULES]
+1) Content Extraction
+2) Product Structure
+3) Templates & Assets
+4) Sales Page
+5) Promo Content
+` + divider +
+`[BIG SCRIPT — FULL MULTI‑PHASE FLOW]
+
+PHASE 1 — CONTENT EXTRACTION
+Prompt:
+"From this PDF: '${input}', extract:
+- Main topics
+- Key frameworks
+- Core outcomes."
+
+PHASE 2 — PRODUCT STRUCTURE
+Prompt:
+"Turn the PDF into a product:
+- Modules/sections
+- Delivery format
+- Bonuses."
+
+PHASE 3 — TEMPLATES & ASSETS
+Prompt:
+"Identify worksheets, checklists, and templates that can be spun out of '${input}'."
+
+PHASE 4 — SALES PAGE
+Prompt:
+"Write a sales page outline:
+- Hook
+- Problem
+- Solution
+- Proof
+- Offer
+- CTA."
+
+PHASE 5 — PROMO CONTENT
+Prompt:
+"Generate 10 social posts to promote the product built from '${input}'."
+
+END OF SCRIPT FOR PDF CONTEXT: ${input}
+`);
+    case 9:
+      return (
+`HYBRID OUTPUT — ENTER A KEYWORD → CONTENT ENGINE
+================================================
+
+[BLUEPRINT SUMMARY]
+- Keyword: ${input}
+- Goal: Turn a keyword into a full content engine.
+- Outputs: Ideas, calendar, scripts, repurposing.
+
+[KEY MODULES]
+1) Topic Map
+2) Idea Bank
+3) 30‑Day Calendar
+4) Script Library
+5) Repurposing Map
+` + divider +
+`[BIG SCRIPT — FULL MULTI‑PHASE FLOW]
+
+PHASE 1 — TOPIC MAP
+Prompt:
+"For the keyword '${input}', map:
+- Subtopics
+- Questions
+- Objections."
+
+PHASE 2 — IDEA BANK
+Prompt:
+"Generate 100 content ideas around '${input}'."
+
+PHASE 3 — 30‑DAY CALENDAR
+Prompt:
+"Create a 30‑day calendar using '${input}' as the core theme."
+
+PHASE 4 — SCRIPT LIBRARY
+Prompt:
+"Write 10 short‑form video scripts and 10 carousel scripts for '${input}'."
+
+PHASE 5 — REPURPOSING MAP
+Prompt:
+"Show how to repurpose each piece into:
+- Email
+- Blog
+- Social."
+
+END OF SCRIPT FOR KEYWORD: ${input}
+`);
+    case 10:
+      return (
+`HYBRID OUTPUT — CLIENT NAME → CLIENT SYSTEM BUILDER
+====================================================
+
+[BLUEPRINT SUMMARY]
+- Client: ${input}
+- Goal: Turn a client name into a full client system.
+- Outputs: Onboarding, brand profile, content, pricing, reporting.
+
+[KEY MODULES]
+1) Client Snapshot
+2) Onboarding Pack
+3) Content System
+4) Pricing & Proposal
+5) Reporting Framework
+` + divider +
+`[BIG SCRIPT — FULL MULTI‑PHASE FLOW]
+
+PHASE 1 — CLIENT SNAPSHOT
+Prompt:
+"From this client name/context: '${input}', define:
+- Niche
+- Audience
+- Main offer."
+
+PHASE 2 — ONBOARDING PACK
+Prompt:
+"Create:
+- Intake form
+- Brand discovery questions
+- Access checklist."
+
+PHASE 3 — CONTENT SYSTEM
+Prompt:
+"Generate:
+- 5 content pillars
+- 30‑day plan
+- 10 post ideas."
+
+PHASE 4 — PRICING & PROPOSAL
+Prompt:
+"Suggest 3 pricing tiers and a proposal outline for '${input}'."
+
+PHASE 5 — REPORTING FRAMEWORK
+Prompt:
+"Define a monthly reporting structure:
+- Metrics
+- Insights
+- Recommendations."
+
+END OF SCRIPT FOR CLIENT: ${input}
+`);
+    default:
+      return "No tool selected.";
+  }
+}
+
+generateBtn.addEventListener("click", () => {
+  const val = inputField.value;
+  const result = hybridOutput(currentTool, val);
+  output.value = result;
+  statusText.textContent = "Hybrid output generated.";
+});
+
+copyBtn.addEventListener("click", () => {
+  if (!output.value) return;
+  output.select();
+  document.execCommand("copy");
+  statusText.textContent = "Output copied to clipboard.";
+});
+
+resetBtn.addEventListener("click", () => {
+  inputField.value = "";
+  output.value = "";
+  statusText.textContent = "Reset · Ready.";
+});
+
+setTool(1);
+</script>
 </body>
 </html>
